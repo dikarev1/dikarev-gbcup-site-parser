@@ -57,9 +57,5 @@ def check_site():
     except Exception as e:
         print(f"Ошибка: {e}")
 
-  except Exception as e:
-    print(f"Ошибка: {e}")
-
-
 if __name__ == "__main__":
   check_site()
