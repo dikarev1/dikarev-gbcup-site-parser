@@ -18,6 +18,7 @@ def send_telegram_message(text):
   payload = {"chat_id": CHAT_ID, "text": text}
   try:
     response = requests.post(url, json=payload, timeout=10)
+    print("Финальный URL:", url)
     print("Ответ Telegram:", response.text)
   except Exception as e:
     print(f"Ошибка отправки: {e}")
