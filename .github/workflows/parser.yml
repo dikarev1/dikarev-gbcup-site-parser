@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+  
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -21,6 +22,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Test Env
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python test_env.py
 
       - name: Run script
         env:
@@ -35,9 +43,4 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add target_hash.txt
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update site hash" && git push)
-      - name: Test Env
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          python test_env.py
+
