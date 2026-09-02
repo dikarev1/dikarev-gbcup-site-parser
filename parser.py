@@ -32,11 +32,8 @@ def check_site():
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
 
-        target_element = soup.find("div", class_="schedule-section")
-        if not target_element:
-            target_element = soup.body
-
-        content = target_element.get_text(strip=True)
+        # Отслеживаем весь видимый текст страницы, а не отдельный блок.
+        content = soup.get_text(" ", strip=True)
         current_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
 
         previous_hash = ""
