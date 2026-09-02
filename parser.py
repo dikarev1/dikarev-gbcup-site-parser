@@ -5,24 +5,42 @@ import requests
 
 URL = "https://gymbreeze.ge/eng"
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
-CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+# Основной получатель хранится в GitHub Secret.
+# Дополнительных получателей можно добавлять прямо сюда.
+CHAT_IDS = [
+    os.environ.get("TELEGRAM_CHAT_ID"),
+    # "123456789",
+    # "987654321",
+]
+
 STATE_FILE = "target_hash.txt"
 
 
 def send_telegram_message(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {
-        "chat_id": CHAT_ID,
-        "text": text,
-        "parse_mode": "HTML",
-    }
 
-    try:
-        response = requests.post(url, json=payload, timeout=10)
-        response.raise_for_status()
-        print("Telegram: сообщение отправлено успешно.")
-    except Exception as e:
-        print(f"Ошибка отправки в Telegram: {e}")
+    all_sent = True
+
+    for chat_id in CHAT_IDS:
+        if not chat_id:
+            continue
+
+        payload = {
+            "chat_id": chat_id,
+            "text": text,
+            "parse_mode": "HTML",
+        }
+
+        try:
+            response = requests.post(url, json=payload, timeout=10)
+            response.raise_for_status()
+            print(f"Telegram: сообщение отправлено пользователю {chat_id}.")
+        except Exception as e:
+            print(f"Ошибка отправки пользователю {chat_id}: {e}")
+            all_sent = False
+
+    return all_sent
 
 
 def check_site():
@@ -48,10 +66,13 @@ def check_site():
                 "Возможно, открылась регистрация на новый турнир.\n"
                 f"🌐 <a href=\"{URL}\">Открыть GymBreeze</a>"
             )
-            send_telegram_message(message)
 
-            with open(STATE_FILE, "w") as f:
-                f.write(current_hash)
+            if send_telegram_message(message):
+                with open(STATE_FILE, "w") as f:
+                    f.write(current_hash)
+                print("Hash обновлён после успешной отправки всем получателям.")
+            else:
+                print("Hash не обновляем, чтобы повторить уведомление на следующем запуске.")
         else:
             print("Изменений на сайте нет. Файл состояния не трогаем.")
 
