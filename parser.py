@@ -24,42 +24,38 @@ def send_telegram_message(text):
     print(f"Ошибка отправки: {e}")
 
 def check_site():
-  try:
-    headers = {"User-Agent": "Mozilla/5.0"}
-    response = requests.get(URL, headers=headers, timeout=10)
-    soup = BeautifulSoup(response.text, "html.parser")
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(URL, headers=headers, timeout=10)
+        soup = BeautifulSoup(response.text, "html.parser")
 
-    # 🎯 УКАЗЫВАЕМ ТОЧЕЧНЫЙ БЛОК ДЛЯ ОТСЛЕЖИВАНИЯ
-    # Пример: ищем блок, где находятся групповые занятия и турниры
-    # (замените селектор на актуальный для вашей страницы класс или тег)
-    target_element = soup.find(
-        "div", class_="schedule-section"
-    )  # замените под себя
+        target_element = soup.find("div", class_="schedule-section")
+        if not target_element:
+            target_element = soup.body
 
-    if not target_element:
-      # Запасной вариант, если класс не найден, берем весь body,
-      # но лучше всегда опираться на конкретный контейнер
-      target_element = soup.body
+        content = target_element.get_text(strip=True)
+        current_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
 
-    # Извлекаем текст только из этого блока и очищаем от лишних пробелов
-    content = target_element.get_text(strip=True)
+        # Читаем старый хэш, если файл существует
+        previous_hash = ""
+        if os.path.exists(STATE_FILE):
+            with open(STATE_FILE, "r") as f:
+                previous_hash = f.read().strip()
 
-    # Считаем хэш целевого контента
-    current_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
+        # Сравниваем: изменился ли контент?
+        if current_hash != previous_hash:
+            print("Обнаружены изменения на сайте! Отправляем уведомление...")
+            send_telegram_message(
+                "🔔 На сайте обновился целевой раздел (расписание/турниры)!"
+            )
+            # И только теперь перезаписываем файл новым хэшем
+            with open(STATE_FILE, "w") as f:
+                f.write(current_hash)
+        else:
+            print("Изменений на сайте нет. Файл состояния не трогаем.")
 
-    # Сверяем с прошлым состоянием
-    previous_hash = ""
-    if os.path.exists(STATE_FILE):
-      with open(STATE_FILE, "r") as f:
-        previous_hash = f.read().strip()
-
-    if current_hash != previous_hash:
-      send_telegram_message(
-          "🔔 На сайте обновился целевой раздел (расписание/турниры)!"
-      )
-      # Сохраняем новый хэш
-      with open(STATE_FILE, "w") as f:
-        f.write(current_hash)
+    except Exception as e:
+        print(f"Ошибка: {e}")
 
   except Exception as e:
     print(f"Ошибка: {e}")
