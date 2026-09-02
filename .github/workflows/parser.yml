@@ -5,15 +5,15 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
+# 🌍 Объявляем секреты глобально для ВСЕГО воркфлоу
+env:
+  TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
 jobs:
   run-parser:
     runs-on: ubuntu-latest
     
-    # Объявляем секреты на уровне всей задачи, чтобы они точно попали в окружение
-    env:
-      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
