@@ -9,14 +9,18 @@ CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 STATE_FILE = "target_hash.txt"
 
 def send_telegram_message(text):
+  print(
+      "DEBUG TOKEN:", TOKEN
+  )  # Выведет токен в лог (или None, если он не подхватился)
+  print("DEBUG CHAT_ID:", CHAT_ID)
+
   url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
   payload = {"chat_id": CHAT_ID, "text": text}
   try:
-    # Добавили timeout=10, чтобы скрипт не зависал наглухо
     response = requests.post(url, json=payload, timeout=10)
-    print("Ответ Telegram:", response.text)  # Поможет увидеть, что ответил сервер
+    print("Ответ Telegram:", response.text)
   except Exception as e:
-    print(f"Не удалось отправить сообщение в Telegram: {e}")
+    print(f"Ошибка отправки: {e}")
 
 def check_site():
   try:
