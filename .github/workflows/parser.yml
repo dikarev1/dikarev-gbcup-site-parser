@@ -8,9 +8,8 @@ on:
 jobs:
   run-parser:
     runs-on: ubuntu-latest
-    
+
     steps:
-  
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -34,9 +33,12 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Отменяем любые попытки Git составить стэш или применить чужие правки
-          git checkout -- . || true
-          
+
           git add target_hash.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update site hash" && git push origin main --force)
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Update site hash"
+            git push origin main
+          else
+            echo "Hash не изменился, коммит не нужен."
+          fi
