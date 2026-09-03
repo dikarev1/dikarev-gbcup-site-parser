@@ -10,8 +10,7 @@ TOKEN = os.environ.get("TELEGRAM_TOKEN")
 # Дополнительных получателей можно добавлять прямо сюда.
 CHAT_IDS = [
     os.environ.get("TELEGRAM_CHAT_ID"),
-    # "123456789",
-    # "987654321",
+    "6358885700",
 ]
 
 STATE_FILE = "target_hash.txt"
