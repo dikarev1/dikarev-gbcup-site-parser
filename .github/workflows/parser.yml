@@ -1,8 +1,9 @@
 name: GymBreeze Parser
 
+# Основной мониторинг завершён, автоматический запуск отключён.
+# Workflow оставлен в репозитории для истории.
+
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
